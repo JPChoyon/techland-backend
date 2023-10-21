@@ -30,6 +30,7 @@ async function run() {
     await client.connect();
 
     const prodactCollection = client.db('prodactDB').collection("prodact");
+    const cartCollection = client.db('prodactDB').collection("cart");
 
     app.get("/prodact", async (req, res) => {
       const cursor = prodactCollection.find();
@@ -53,6 +54,29 @@ async function run() {
       const result = await prodactCollection.insertOne(prodact);
       res.send(result)
     })
+    app.post("/mycart", async (req, res) => {
+      const cart = req.body
+      const result = await cartCollection.insertOne(cart)
+      res.send(result)
+    })
+    app.get("/deletecart", async (req, res) => {
+      const cursor = cartCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+    
+    app.delete("/deletecart/:id", async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await cartCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    app.get("/mycart", async (req, res) => {
+      const cursor = cartCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    })
 
     app.put('/prodactDetails/:id', async (req, res) => {
       const id = req.params.id;
@@ -70,7 +94,7 @@ async function run() {
           image: updatedProdact.image
         }
       }
-      const result= await prodactCollection.updateOne(filter,prodact,options)
+      const result = await prodactCollection.updateOne(filter, prodact, options)
     })
 
 
